@@ -1,0 +1,110 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Row 1: Centralized Live Log Stream & Rate Analytics",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Real-Time Log Stream ({app=\"ticketflow\"})",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 16, "x": 0, "y": 1 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{app=\"ticketflow\"}",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Log Ingestion Rate by Service (logs/min)",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 1 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (service) (rate({app=\"ticketflow\"}[1m])) * 60",
+          "legendFormat": "{{service}}"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" } }
+    },
+    {
+      "id": 3,
+      "title": "Log Volume by Severity Level",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 7 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (level) (count_over_time({app=\"ticketflow\"}[5m]))",
+          "legendFormat": "{{level}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "ERROR": { "color": "red" }, "WARN": { "color": "yellow" }, "INFO": { "color": "blue" } }, "type": "value" }
+          ]
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 13 },
+      "id": 200,
+      "title": "Row 2: Incident Correlation & Triage Error Streams",
+      "type": "row"
+    },
+    {
+      "id": 11,
+      "title": "Incident & Chaos Error Log Stream",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 14 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{app=\"ticketflow\"} |~ \"(?i)error|fatal|deadlock|chaos|crash|failed\"",
+          "queryType": "range"
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "logs", "loki", "cross-platform", "correlation"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "04 - AIST Unified Live Logs & Cross-Platform Correlation",
+  "uid": "aist-live-logs",
+  "version": 1
+}
+
+

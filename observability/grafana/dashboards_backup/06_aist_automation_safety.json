@@ -1,0 +1,102 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Row 1: Action Outcomes",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Remediation Attempts vs Blocked",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(rate(aist_remediation_attempts_total[5m]))", "legendFormat": "attempted" },
+        { "expr": "sum(rate(aist_remediation_blocked_total[5m]))", "legendFormat": "blocked" },
+        { "expr": "sum(rate(aist_remediation_failed_total[5m]))", "legendFormat": "failed" },
+        { "expr": "sum(rate(aist_remediation_verified_total[5m]))", "legendFormat": "verified" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops" } }
+    },
+    {
+      "id": 2,
+      "title": "Approval Rate",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "clamp_max((sum(aist_remediation_approved_total) / clamp_min(sum(aist_remediation_proposed_total), 1)) * 100, 100)", "legendFormat": "approval %" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "red", "value": null }, { "color": "yellow", "value": 50 }, { "color": "green", "value": 80 } ] }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Policy Denial Reasons",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (reason) (aist_policy_denials_total)", "legendFormat": "{{reason}}" }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 200,
+      "title": "Row 2: Verification and Cooldown",
+      "type": "row"
+    },
+    {
+      "id": 4,
+      "title": "Verification Latency (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(aist_remediation_verification_duration_seconds_bucket[5m])) by (le, action_id))", "legendFormat": "{{action_id}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 5,
+      "title": "Circuit Breaker / Cooldown State",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "aist_action_circuit_open", "legendFormat": "{{action_id}} {{environment}}" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [ { "options": { "0": { "text": "CLOSED" }, "1": { "text": "OPEN" } }, "type": "value" } ],
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 1 } ] }
+        }
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "automation", "safety", "sre"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "06 - AIST Automation Safety",
+  "uid": "aist-automation-safety",
+  "version": 1
+}

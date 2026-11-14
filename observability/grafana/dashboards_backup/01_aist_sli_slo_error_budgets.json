@@ -1,0 +1,715 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "title": "Row 1: Executive SLIs, Objectives & Multi-Window Error Budget Gauges",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "TicketFlow Availability SLI (Target: 99.9%)",
+      "description": "Ratio of successful HTTP requests (non-5xx) over rolling 30m window.",
+      "type": "gauge",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_max((sum(rate(http_requests_total{status!~\"5..\"}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 0.001)) * 100, 100)",
+          "legendFormat": "Availability %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 90,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 99.0
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Latency SLI: p95 < 500ms (Target: 99.0%)",
+      "description": "Percentage of requests completing within 500ms SLA target.",
+      "type": "gauge",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_max((sum(rate(http_request_duration_seconds_bucket{le=\"0.5\"}[5m])) / clamp_min(sum(rate(http_request_duration_seconds_count[5m])), 0.001)) * 100, 100)",
+          "legendFormat": "Fast Requests %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 80,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95.0
+              },
+              {
+                "color": "green",
+                "value": 99.0
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Error Budget Remaining (%)",
+      "description": "Remaining monthly error budget based on 99.9% availability objective (0.1% allowable error).",
+      "type": "gauge",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_min(clamp_max((1 - ((1 - (sum(rate(http_requests_total{status!~\"5..\"}[30m])) / clamp_min(sum(rate(http_requests_total[30m])), 0.001))) / 0.001)) * 100, 0), 100)",
+          "legendFormat": "Budget Remaining %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 25.0
+              },
+              {
+                "color": "green",
+                "value": 75.0
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "1-Hour Error Budget Burn Rate",
+      "description": "Google SRE MWMBR 1-hour burn rate. Values > 14.4x trigger P1 page.",
+      "type": "stat",
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_min((1 - (sum(rate(http_requests_total{status!~\"5..\"}[1h])) / clamp_min(sum(rate(http_requests_total[1h])), 0.001))) / 0.001, 0)",
+          "legendFormat": "1h Burn Rate (x)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3.0
+              },
+              {
+                "color": "orange",
+                "value": 6.0
+              },
+              {
+                "color": "red",
+                "value": 14.4
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 200,
+      "title": "Row 2: Multi-OS Microservice Fleet Availability Matrix (Synthetic & Scrape Probes)",
+      "type": "row"
+    },
+    {
+      "id": 11,
+      "title": "TicketFlow API (RHEL 10)",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"ticketflow-api-flask\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Notification Svc (RHEL 10)",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"notification-service\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 13,
+      "title": "Auth Gateway (Win 2025)",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"auth-gateway\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "title": "Audit & DB Svc (Win 2019)",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"audit-service\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 15,
+      "title": "RHEL 10 Node Exporter",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 16,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"node-exporter-rhel10\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 16,
+      "title": "RHEL 9 Node Exporter",
+      "type": "stat",
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"node-exporter-rhel9\"} * 100",
+          "legendFormat": "Uptime %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 100
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 300,
+      "title": "Row 3: Error Budget Consumption & Multi-Burn Rate Curves",
+      "type": "row"
+    },
+    {
+      "id": 21,
+      "title": "Error Budget Burn Rate Multi-Window Timeline",
+      "description": "Multi-window burn rate curves (1h, 6h) compared against SRE emergency paging thresholds.",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_min((1 - (sum(rate(http_requests_total{status!~\"5..\"}[1h])) / clamp_min(sum(rate(http_requests_total[1h])), 0.001))) / 0.001, 0)",
+          "legendFormat": "1-Hour Window Burn (x)"
+        },
+        {
+          "expr": "clamp_min((1 - (sum(rate(http_requests_total{status!~\"5..\"}[6h])) / clamp_min(sum(rate(http_requests_total[6h])), 0.001))) / 0.001, 0)",
+          "legendFormat": "6-Hour Window Burn (x)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 3.0
+              },
+              {
+                "color": "red",
+                "value": 14.4
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 22,
+      "title": "Rolling 30-Day Error Budget Remaining (%)",
+      "description": "Live Error Budget depletion curve across active sprint.",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_min(clamp_max((1 - ((1 - (sum(rate(http_requests_total{status!~\"5..\"}[30m])) / clamp_min(sum(rate(http_requests_total[30m])), 0.001))) / 0.001)) * 100, 0), 100)",
+          "legendFormat": "Error Budget % Remaining"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 20
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 20
+      },
+      "id": 301,
+      "title": "Row 4: User Authentication & Login Experience SLIs (Pass / Fail Metrics)",
+      "type": "row"
+    },
+    {
+      "id": 302,
+      "title": "Login Success Rate (SLO: \u2265 99.5%)",
+      "description": "Percentage of successful user authentications over rolling 15m window.",
+      "type": "gauge",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "clamp_max(sum(rate(auth_login_attempts_total{status=\"success\"}[15m])) / clamp_min(sum(rate(auth_login_attempts_total[15m])), 0.001) * 100, 100.0)",
+          "legendFormat": "Login Success %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 98
+              },
+              {
+                "color": "green",
+                "value": 99.5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 303,
+      "title": "Authentication Volume & Pass / Fail Stream (RPS)",
+      "description": "Real-time rate of successful vs failed user login attempts.",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (status) (rate(auth_login_attempts_total[2m]))",
+          "legendFormat": "Logins: {{status}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "fillOpacity": 20
+          }
+        }
+      }
+    },
+    {
+      "id": 304,
+      "title": "Frontend Web & Backend API End-to-End Availability (%)",
+      "description": "Availability comparison: React Web Portal (Win2025:3000) vs LoanProcessAI API (RHEL10:5000).",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 21
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "avg_over_time(frontend_up[15m]) * 100",
+          "legendFormat": "Frontend Web Portal (Win2025:3000)"
+        },
+        {
+          "expr": "up{job=\"ticketflow-api-flask\"} * 100",
+          "legendFormat": "LoanProcessAI Backend API (RHEL10:5000)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 15
+          }
+        }
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "aist",
+    "sli",
+    "slo",
+    "error-budget",
+    "sre"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m"
+    ]
+  },
+  "timezone": "browser",
+  "title": "01 - AIST Multi-OS SLI / SLO & Error Budget Command Center",
+  "uid": "aist-sli-slo",
+  "version": 1
+}

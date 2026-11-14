@@ -1,0 +1,22 @@
+{
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "services",
+    "ai-triage/webui/frontend",
+    ".venv"
+  ],
+  "venvPath": ".",
+  "venv": ".venv",
+  "extraPaths": [
+    ".",
+    "ai-triage",
+    "ai-triage/agents",
+    "ai-triage/mcp-servers",
+    "ai-triage/knowledge-base",
+    "ai-triage/webui/backend/app",
+    "infrastructure"
+  ],
+  "pythonVersion": "3.14"
+}

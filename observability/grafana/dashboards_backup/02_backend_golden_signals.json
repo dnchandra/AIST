@@ -1,0 +1,176 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Throughput & Traffic (RED - Rate)",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "API Request Rate (RPS by Handler)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m])) by (handler)",
+          "legendFormat": "{{handler}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "lineInterpolation": "smooth", "fillOpacity": 15 } }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Total API Invocations (Last 15m)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(increase(http_requests_total[15m]))",
+          "legendFormat": "Total Requests"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "Latency Percentiles (RED - Duration)",
+      "type": "row"
+    },
+    {
+      "id": 3,
+      "title": "API Latency Percentiles (p50 Median, p95 SLA, p99 Tail)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 14, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p50 (Median)"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p95 (SLA Threshold)"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[1m])) by (le))",
+          "legendFormat": "p99 (Tail Latency)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "drawStyle": "line", "lineInterpolation": "smooth" } }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Latency by Route (p95 Seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 10, "x": 14, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[1m])) by (le, handler))",
+          "legendFormat": "{{handler}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "custom": { "drawStyle": "line", "lineInterpolation": "smooth" } }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 102,
+      "title": "Errors & HTTP Response Codes (RED - Errors)",
+      "type": "row"
+    },
+    {
+      "id": 5,
+      "title": "HTTP Status Code Breakdown (Last 5m)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 14, "x": 0, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(increase(http_requests_total{status=~\"2..\"}[5m])) or vector(0)", "legendFormat": "2xx OK" },
+        { "expr": "sum(increase(http_requests_total{status=~\"4..\"}[5m])) or vector(0)", "legendFormat": "4xx Client Errors" },
+        { "expr": "sum(increase(http_requests_total{status=~\"5..\"}[5m])) or vector(0)", "legendFormat": "5xx Server Errors" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Error Rate Percentage (%)",
+      "type": "timeseries",
+      "gridPos": { "h": 6, "w": 10, "x": 14, "y": 19 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "clamp_min(((sum(rate(http_requests_total{status=~\"[45]..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total[1m])), 0.0001)) * 100, 0)",
+          "legendFormat": "Error %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "custom": { "drawStyle": "line", "lineInterpolation": "smooth" } }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
+      "id": 103,
+      "title": "Live Backend Execution & Exception Telemetry Logs",
+      "type": "row"
+    },
+    {
+      "id": 7,
+      "title": "FastAPI Core Request & Trace Log Stream (Loki Engine)",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 26 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service_name=~\".+\"}",
+          "maxLines": 500
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["loanprocessai", "backend", "golden-signals", "api"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "02 - Backend Core API Golden Signals",
+  "uid": "loanprocessai-golden-signals",
+  "version": 1
+}

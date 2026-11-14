@@ -1,0 +1,40 @@
+groups:
+  - name: aist-sli-slo-recording-rules
+    interval: 10s
+    rules:
+      - record: job:http_requests:rate5m
+        expr: sum by (job, service) (rate(http_requests_total[5m]))
+
+      - record: job:http_requests_errors:rate5m
+        expr: sum by (job, service) (rate(http_requests_total{status=~"5.."}[5m]))
+
+      - record: job:error_rate:ratio5m
+        expr: sum by (job, service) (rate(http_requests_total{status=~"5.."}[5m])) / clamp_min(sum by (job, service) (rate(http_requests_total[5m])), 0.001)
+
+      - record: slo:availability:ratio5m
+        expr: clamp_max(sum(rate(http_requests_total{status!~"5.."}[5m])) / clamp_min(sum(rate(http_requests_total[5m])), 0.001), 1.0)
+
+      - record: slo:availability:ratio30m
+        expr: clamp_max(sum(rate(http_requests_total{status!~"5.."}[30m])) / clamp_min(sum(rate(http_requests_total[30m])), 0.001), 1.0)
+
+      - record: slo:latency_p95:seconds5m
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))
+
+      - record: slo:burn_rate:1h
+        expr: (sum(rate(http_requests_total{status=~"5.."}[1h])) / clamp_min(sum(rate(http_requests_total[1h])), 0.001)) / 0.001
+
+      - record: slo:burn_rate:6h
+        expr: (sum(rate(http_requests_total{status=~"5.."}[6h])) / clamp_min(sum(rate(http_requests_total[6h])), 0.001)) / 0.001
+
+  - name: aist-node-resource-recording-rules
+    interval: 10s
+    rules:
+      - record: node:cpu_utilization:percent2m
+        expr: 100 - (avg by (instance, os) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100)
+
+      - record: node:memory_utilization:percent
+        expr: 100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+
+      - record: node:disk_free:percent
+        expr: 100 * (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})
+

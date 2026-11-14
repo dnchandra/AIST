@@ -1,0 +1,12 @@
+__pycache__
+*.py[cod]
+*$py.class
+.venv
+venv
+env
+.env
+.env*
+*.log
+_peek_out.txt
+.DS_Store
+data

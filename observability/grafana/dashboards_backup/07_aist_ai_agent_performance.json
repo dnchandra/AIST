@@ -1,0 +1,95 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Incidents Investigated by AI",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "sum(aist_ai_incidents_investigated_total)", "legendFormat": "investigated" } ]
+    },
+    {
+      "id": 2,
+      "title": "Self-Healed Incidents",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "sum(aist_ai_self_healed_total)", "legendFormat": "self-healed" } ]
+    },
+    {
+      "id": 3,
+      "title": "Human Approvals vs Rejections",
+      "type": "piechart",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum(aist_ai_human_approved_total)", "legendFormat": "approved" },
+        { "expr": "sum(aist_ai_human_rejected_total)", "legendFormat": "rejected" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Self-Healing Success Rate",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "clamp_max((sum(aist_ai_self_healed_total) / clamp_min(sum(aist_ai_remediation_proposed_total), 1)) * 100, 100)", "legendFormat": "success %" } ],
+      "fieldConfig": { "defaults": { "min": 0, "max": 100, "unit": "percent" } }
+    },
+    {
+      "id": 5,
+      "title": "AI Investigation Duration p50/p95",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, sum(rate(aist_ai_investigation_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p50" },
+        { "expr": "histogram_quantile(0.95, sum(rate(aist_ai_investigation_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p95" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 6,
+      "title": "LLM Inference Latency p95",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(aist_llm_request_duration_seconds_bucket[5m])) by (le, model))", "legendFormat": "{{model}}" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 7,
+      "title": "FastMCP Tool Calls by Tool",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "sum by (tool) (rate(aist_mcp_tool_calls_total[5m]))", "legendFormat": "{{tool}}" } ]
+    },
+    {
+      "id": 8,
+      "title": "MTTR",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [ { "expr": "avg(aist_incident_mttr_seconds)", "legendFormat": "MTTR" } ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "ai", "agent", "performance", "self-healing"],
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "07 - AIST AI Agent Performance and Self-Healing Outcomes",
+  "uid": "aist-ai-agent-performance",
+  "version": 1
+}

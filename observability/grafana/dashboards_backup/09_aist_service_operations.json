@@ -1,0 +1,20 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    { "collapsed": false, "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }, "id": 100, "title": "Audited Service Operations and Recovery Safety", "type": "row" },
+    { "id": 1, "title": "Audited Service Operations", "type": "stat", "gridPos": { "h": 6, "w": 6, "x": 0, "y": 1 }, "datasource": { "type": "prometheus", "uid": "prometheus" }, "targets": [{ "expr": "aist_service_operations_total", "legendFormat": "operations" }], "fieldConfig": { "defaults": { "unit": "short" } } },
+    { "id": 2, "title": "Failed Service Operations", "type": "stat", "gridPos": { "h": 6, "w": 6, "x": 6, "y": 1 }, "datasource": { "type": "prometheus", "uid": "prometheus" }, "targets": [{ "expr": "aist_service_operations_failed_total", "legendFormat": "failed" }], "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } } },
+    { "id": 3, "title": "Tripped Recovery Circuits", "type": "stat", "gridPos": { "h": 6, "w": 6, "x": 12, "y": 1 }, "datasource": { "type": "prometheus", "uid": "prometheus" }, "targets": [{ "expr": "aist_circuit_breakers_tripped", "legendFormat": "tripped" }], "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] } } } },
+    { "id": 4, "title": "Open Escalation Tickets", "type": "stat", "gridPos": { "h": 6, "w": 6, "x": 18, "y": 1 }, "datasource": { "type": "prometheus", "uid": "prometheus" }, "targets": [{ "expr": "aist_tickets_open", "legendFormat": "tickets" }], "fieldConfig": { "defaults": { "unit": "short", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "orange", "value": 1 }] } } } },
+    { "id": 5, "title": "Remediation Attempts and Failed Verification", "type": "timeseries", "gridPos": { "h": 8, "w": 24, "x": 0, "y": 7 }, "datasource": { "type": "prometheus", "uid": "prometheus" }, "targets": [{ "expr": "aist_remediation_attempts_total", "legendFormat": "attempts" }, { "expr": "aist_remediation_attempts_failed_total", "legendFormat": "failed verification" }], "fieldConfig": { "defaults": { "unit": "short" } } }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "service-operations", "self-healing", "safety"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "09 - AIST Service Operations and Recovery Safety",
+  "uid": "aist-service-operations",
+  "version": 1
+}

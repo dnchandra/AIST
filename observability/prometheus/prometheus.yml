@@ -1,0 +1,112 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - "alertmanager:9093"
+
+scrape_configs:
+  # Linux OS Nodes
+  - job_name: "node-exporter-rhel10"
+    static_configs:
+      - targets: ["192.168.1.130:9100"]
+        labels:
+          os: "rhel10"
+          role: "app-server"
+
+  - job_name: "node-exporter-rhel9"
+    static_configs:
+      - targets: ["192.168.1.131:9100"]
+        labels:
+          os: "rhel9"
+          role: "observability-hub"
+
+  # Application Metrics
+  - job_name: "ticketflow-api-flask"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["192.168.1.130:5000"]
+        labels:
+          app: "ticketflow"
+          service: "api-flask"
+          env: "production"
+
+  - job_name: "notification-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["192.168.1.130:8080"]
+        labels:
+          app: "ticketflow"
+          service: "notification-service"
+          env: "production"
+
+  - job_name: "auth-gateway"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["192.168.1.132:5001"]
+        labels:
+          app: "ticketflow"
+          service: "auth-gateway"
+          env: "production"
+
+  - job_name: "audit-service"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["192.168.1.133:8088"]
+        labels:
+          app: "ticketflow"
+          service: "audit-service"
+          env: "production"
+
+  # Windows Server Infrastructure & Service Monitoring
+  - job_name: "windows-exporter-win2025"
+    static_configs:
+      - targets: ["192.168.1.132:9182"]
+        labels:
+          os: "win2025"
+          role: "frontend-auth-gateway"
+
+  - job_name: "windows-exporter-win2019"
+    static_configs:
+      - targets: ["192.168.1.133:9182"]
+        labels:
+          os: "win2019"
+          role: "audit-db-service"
+
+  # Local controller: incident lifecycle, service operations, and automation safety.
+  - job_name: "aist-controller"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["192.168.1.14:8000"]
+        labels:
+          app: "aist"
+          service: "controller"
+          env: "lab"
+
+  # Observability Infrastructure Self-Monitoring (RHEL 9)
+  - job_name: "prometheus-internal"
+    static_configs:
+      - targets: ["192.168.1.131:9090"]
+        labels:
+          component: "prometheus"
+          role: "metrics-engine"
+
+  - job_name: "alertmanager-internal"
+    static_configs:
+      - targets: ["192.168.1.131:9093"]
+        labels:
+          component: "alertmanager"
+          role: "alert-dispatcher"
+
+  - job_name: "otel-collector-metrics"
+    static_configs:
+      - targets: ["192.168.1.131:8888"]
+        labels:
+          component: "otel-collector"
+          role: "telemetry-pipeline"

@@ -1,0 +1,71 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Row 1: Incident State Counts",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Incidents by State",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "sum by (state) (aist_incidents_total)", "legendFormat": "{{state}}" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": { "mode": "absolute", "steps": [ { "color": "blue", "value": null } ] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 200,
+      "title": "Row 2: Time in State",
+      "type": "row"
+    },
+    {
+      "id": 2,
+      "title": "Median Time in Investigating (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, sum(rate(aist_incident_state_duration_seconds_bucket{state=\"INVESTIGATING\"}[5m])) by (le))", "legendFormat": "investigating p50" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    },
+    {
+      "id": 3,
+      "title": "Median Time Awaiting Approval (s)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, sum(rate(aist_incident_state_duration_seconds_bucket{state=\"AWAITING_HUMAN_APPROVAL\"}[5m])) by (le))", "legendFormat": "approval wait p50" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "s" } }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "incident", "lifecycle", "sre"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "05 - AIST Incident Lifecycle",
+  "uid": "aist-incident-lifecycle",
+  "version": 1
+}

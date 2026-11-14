@@ -1,0 +1,189 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Multi-Agent Sequential Pipeline Progression (5 Automated Stages + Closing)",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Agent Execution Throughput by Pipeline Stage",
+      "description": "Total autonomous executions across the 6 underwriting stages: Document Intake, KYC Verification, Financial Spreading, Credit Memo Synthesis, Decision Evaluation, and Closing.",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(agent_executions_total) by (agent_name)",
+          "legendFormat": "{{agent_name}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "barWidth": 0.6,
+        "groupWidth": 0.7
+      }
+    },
+    {
+      "id": 2,
+      "title": "AI Agent Stage Success Rate (%)",
+      "description": "Operational reliability score per autonomous stage.",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "agent_stage_success_rate_percent",
+          "legendFormat": "{{agent_name}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 50,
+          "max": 100,
+          "unit": "percent",
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 85 }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "barWidth": 0.6,
+        "groupWidth": 0.7
+      }
+    },
+    {
+      "id": 3,
+      "title": "Active Pipeline Cases by Workflow State",
+      "description": "Underwriting workflow management cases grouped by status: Approved, In Review, Pending Documents, Submitted, Rejected, Escalated.",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(loan_cases_total) by (status)",
+          "legendFormat": "{{status}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 80 }
+        }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "barWidth": 0.6,
+        "groupWidth": 0.7
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "Per-Agent Latency & Execution Timings (Waterfall Slices)",
+      "type": "row"
+    },
+    {
+      "id": 4,
+      "title": "Agent Stage Latency Breakdown (Average Execution Seconds)",
+      "description": "Execution duration in seconds per autonomous agent stage.",
+      "type": "barchart",
+      "gridPos": { "h": 8, "w": 16, "x": 0, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "agent_stage_latency_seconds or (sum(agent_execution_duration_seconds_sum) by (agent_name) / clamp_min(sum(agent_execution_duration_seconds_count) by (agent_name), 1))",
+          "legendFormat": "{{agent_name}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "color": { "mode": "palette-classic" }, "custom": { "fillOpacity": 75 } }
+      },
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "always",
+        "barWidth": 0.6,
+        "groupWidth": 0.7
+      }
+    },
+    {
+      "id": 5,
+      "title": "Total Autonomous Agent Steps",
+      "description": "Cumulative agent executions across all active lending cases.",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 10 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(agent_executions_total) or vector(0)", "legendFormat": "Cumulative Steps" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "color": { "mode": "palette-classic" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 102,
+      "title": "Agent Execution Audit Trail & Step Logs (Loki)",
+      "type": "row"
+    },
+    {
+      "id": 6,
+      "title": "Multi-Agent Pipeline Event Stream (Loki Ingestion)",
+      "description": "Comprehensive structured audit trail of each agent's execution, correlation ID, output summary, and token usage.",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 19 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service_name=~\".+\"} |= \"agent\"",
+          "maxLines": 500
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["loanprocessai", "multi-agent", "adk", "underwriting"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "04 - Multi-Agent Pipeline Orchestration & Workflow Health",
+  "uid": "loanprocessai-multi-agent",
+  "version": 2
+}

@@ -1,0 +1,32 @@
+---
+# AIST Master Provisioning & Hardening Playbook
+- name: Configure Linux Application & Observability Nodes
+  hosts: rhel_nodes
+  gather_facts: false
+  tasks:
+    - name: Ensure required deployment directories exist
+      file:
+        path: /opt/aist
+        state: directory
+        mode: '0755'
+
+    - name: Open required firewall ports on RHEL nodes
+      command: >
+        firewall-cmd --permanent --add-port=22/tcp --add-port=5000/tcp --add-port=8080/tcp 
+        --add-port=9090/tcp --add-port=3000/tcp --add-port=3100/tcp --add-port=9093/tcp 
+        --add-port=9100/tcp
+      ignore_errors: true
+
+    - name: Reload firewall configuration
+      command: firewall-cmd --reload
+      ignore_errors: true
+
+- name: Configure Windows Server Security & Service Ports
+  hosts: windows_nodes
+  gather_facts: false
+  tasks:
+    - name: Configure Windows Lab Firewall Profile
+      win_shell: |
+        Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
+        New-Item -ItemType Directory -Force -Path "C:\AIST" | Out-Null
+

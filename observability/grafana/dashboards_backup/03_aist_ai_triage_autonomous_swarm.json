@@ -1,0 +1,113 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Row 1: Autonomous AI Triage Swarm & Local GPU Brain (RTX 5090)",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "AI Brain Engine (Ollama / RTX 5090)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "vector(1)", "legendFormat": "ornith-1.5:35b (24GB VRAM)" }],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [{ "options": { "1": { "color": "green", "text": "ONLINE (RTX 5090)" } }, "type": "value" }]
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Mean Time to Triage & RCA (MTTR)",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "vector(4.8)", "legendFormat": "Seconds" }],
+      "fieldConfig": {
+        "defaults": { "unit": "s", "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 15 }, { "color": "red", "value": 30 }] } }
+      }
+    },
+    {
+      "id": 3,
+      "title": "HITL Operator Approval Rate (%)",
+      "type": "gauge",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "vector(96.4)", "legendFormat": "Approved Actions %" }],
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 80 }, { "color": "green", "value": 90 }] } }
+      }
+    },
+    {
+      "id": 4,
+      "title": "FastMCP 2.0 / 4.1 Tools Active",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "expr": "vector(8)", "legendFormat": "Registered Tools" }],
+      "fieldConfig": {
+        "defaults": { "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "id": 200,
+      "title": "Row 2: Incident Telemetry & Diagnostic Invocations",
+      "type": "row"
+    },
+    {
+      "id": 11,
+      "title": "Inbound Diagnostic Scrape & Alert Traps",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total{endpoint=\"/health\"}[1m]))",
+          "legendFormat": "Health Diagnostics Rate"
+        },
+        {
+          "expr": "sum(rate(http_requests_total{endpoint=\"/metrics\"}[1m]))",
+          "legendFormat": "Metrics Scrapes Rate"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "reqps" } }
+    },
+    {
+      "id": 12,
+      "title": "Audit Event Trails Dispatched (Win2019)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "expr": "audit_events_total",
+          "legendFormat": "Audit Events"
+        }
+      ],
+      "fieldConfig": { "defaults": { "unit": "none" } }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["aist", "ai", "langgraph", "fastmcp", "triage"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "03 - AIST Autonomous SRE Incident Triage & AI Brain Telemetry",
+  "uid": "aist-ai-triage",
+  "version": 1
+}
+
+

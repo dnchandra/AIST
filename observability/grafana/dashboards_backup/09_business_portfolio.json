@@ -1,0 +1,111 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Business Portfolio KPIs — Loan Origination Funnel & Risk",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Total Applications",
+      "description": "Total commercial loan applications in the portfolio.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(loan_funnel_stage_total{stage=\"application\"}) or vector(0)", "legendFormat": "Applications" }
+      ],
+      "fieldConfig": {
+        "defaults": { "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Documents Complete",
+      "description": "Applications that have completed document submission.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 4, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(loan_funnel_stage_total{stage=\"documents_complete\"}) or vector(0)", "legendFormat": "Docs Complete" }
+      ],
+      "fieldConfig": {
+        "defaults": { "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }
+      }
+    },
+    {
+      "id": 3,
+      "title": "KYC Passed",
+      "description": "Applications that have passed KYC verification.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(loan_funnel_stage_total{stage=\"kyc_passed\"}) or vector(0)", "legendFormat": "KYC Passed" }
+      ],
+      "fieldConfig": {
+        "defaults": { "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Credit Approved",
+      "description": "Applications approved by credit committee or automated underwriting.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "sum(loan_funnel_stage_total{stage=\"credit_approved\",outcome=\"approved\"}) or vector(0)", "legendFormat": "Approved" }
+      ],
+      "fieldConfig": {
+        "defaults": { "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+      }
+    },
+    {
+      "id": 5,
+      "title": "Funded Volume ($)",
+      "description": "Total funded loan volume in current period.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "loan_funded_volume_dollars or vector(0)", "legendFormat": "Funded Volume" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "currencyUSD", "decimals": 0, "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "purple", "value": null }] } }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Avg Days to Decision",
+      "description": "Average days from application submission to final decision.",
+      "type": "stat",
+      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        { "expr": "avg_over_time(loan_time_to_decision_days[1h]) or vector(0)", "legendFormat": "Avg Days" }
+      ],
+      "fieldConfig": {
+        "defaults": { "decimals": 1, "unit": "s", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 14 }, { "color": "red", "value": 30 }] } }
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["loanprocessai", "business", "portfolio", "funnel", "risk", "governance"],
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": { "refresh_intervals": ["10s", "30s", "1m", "5m"] },
+  "timezone": "browser",
+  "title": "09 - Business Portfolio & Loan Funnel",
+  "uid": "loanprocessai-business-portfolio",
+  "version": 1
+}

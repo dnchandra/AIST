@@ -1,0 +1,17 @@
+project-includes = ["."]
+project-excludes = [
+    "services/**",
+    "ai-triage/webui/frontend/**",
+    ".venv/**"
+]
+search-path = [
+    ".",
+    "ai-triage",
+    "ai-triage/agents",
+    "ai-triage/mcp-servers",
+    "ai-triage/knowledge-base",
+    "ai-triage/webui/backend/app",
+    "infrastructure",
+]
+python-version = "3.14.0"
+infer-with-first-use = false

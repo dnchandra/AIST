@@ -1,0 +1,361 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Row 1: Frontend User Experience, SLIs & Synthetic Reliability",
+      "type": "row"
+    },
+    {
+      "id": 1,
+      "title": "Frontend Web Availability SLI (Target: 99.9%)",
+      "description": "Continuous synthetic probe availability of the React frontend web portal.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "avg_over_time(frontend_up[15m]) * 100", "legendFormat": "Frontend Reachability %" }],
+      "fieldConfig": {
+        "defaults": {
+          "min": 90,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 98 }, { "color": "green", "value": 99.9 }] }
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Frontend Synthetic Probe Latency (< 50ms SLA)",
+      "description": "Roundtrip HTTP health probe response latency from backend to frontend portal.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "frontend_probe_duration_seconds * 1000", "legendFormat": "Probe Latency (ms)" }],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 20 }, { "color": "red", "value": 50 }] }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "title": "Frontend Error Budget Remaining (%)",
+      "description": "Remaining monthly error budget based on 99.9% frontend uptime objective.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "clamp_min(clamp_max((1 - ((1 - avg_over_time(frontend_up[15m])) / 0.001)) * 100, 0), 100)",
+          "legendFormat": "Remaining Budget %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 20 }, { "color": "green", "value": 80 }] }
+        }
+      }
+    },
+    {
+      "id": 4,
+      "title": "Frontend Web Probe Latency (ms vs 500ms SLA)",
+      "description": "Real-time synthetic latency curve tracking frontend responsiveness.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 1 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [{ "expr": "frontend_probe_duration_seconds * 1000", "legendFormat": "Probe Roundtrip (ms)" }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineInterpolation": "smooth", "fillOpacity": 15 },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 50 }] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 8 },
+      "id": 101,
+      "title": "Row 2: Backend Core API Golden Signals, SLOs & Error Budget",
+      "type": "row"
+    },
+    {
+      "id": 5,
+      "title": "Backend API Availability SLO (Target: 99.9%)",
+      "description": "Core Backend API availability calculated from HTTP 5xx error ratios over 5 minutes. Target: 99.9%.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "clamp_max(clamp_min((1 - ((sum(rate(http_requests_total{status=~\"5..\"}[5m])) or vector(0)) / clamp_min(sum(rate(http_requests_total[5m])), 0.0001))) * 100, 0), 100)",
+          "legendFormat": "Availability %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 90,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 98 }, { "color": "green", "value": 99.9 }] }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Backend Core API Latency SLI (p95 < 200ms)",
+      "description": "95th percentile response latency for core REST API routes. Executive SLA target: < 200ms.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "(histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) * 1000) or vector(0)",
+          "legendFormat": "p95 API Latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1000,
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 200 }, { "color": "red", "value": 500 }] }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Backend Core API Error Rate (< 0.5%)",
+      "description": "Ratio of 5xx HTTP server errors across all backend routes. Compliance target: < 0.5%.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "((sum(rate(http_requests_total{status=~\"5..\"}[5m])) or vector(0)) / clamp_min(sum(rate(http_requests_total[5m])), 0.0001)) * 100",
+          "legendFormat": "Error Rate %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 5,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1.0 }] }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "Backend Error Budget Remaining (%)",
+      "description": "Remaining monthly error budget based on 99.9% availability commitment.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 9 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "clamp_min(clamp_max((1 - (((sum(rate(http_requests_total{status=~\"5..\"}[15m])) or vector(0)) / clamp_min(sum(rate(http_requests_total[15m])), 0.0001)) / 0.001)) * 100, 0), 100)",
+          "legendFormat": "Remaining Budget"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "yellow", "value": 20 }, { "color": "green", "value": 80 }] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 102,
+      "title": "Row 3: GenAI RAG, LLM & Multi-Agent Pipeline Service Level Indicators (SLIs)",
+      "type": "row"
+    },
+    {
+      "id": 9,
+      "title": "Pre-LLM Guardrail Inspection SLI (< 30ms SLA)",
+      "description": "Deterministic safety and security evaluation latency. Target SLA is < 30ms.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "((histogram_quantile(0.95, sum(rate(guardrail_duration_seconds_bucket[15m])) by (le)) * 1000) >= 0) or vector(0)",
+          "legendFormat": "p95 Guardrail Latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 50,
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 25 }, { "color": "red", "value": 30 }] }
+        }
+      }
+    },
+    {
+      "id": 10,
+      "title": "RAG Retrieval Search Latency SLI (p95 < 1500ms Target)",
+      "description": "95th percentile latency of Elasticsearch dense vector and BM25 hybrid document chunk retrieval.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "((histogram_quantile(0.95, sum(rate(rag_search_latency_ms_bucket[15m])) by (le))) >= 0) or vector(0)",
+          "legendFormat": "p95 RAG Search"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 3000,
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 1000 }, { "color": "red", "value": 1500 }] }
+        }
+      }
+    },
+    {
+      "id": 11,
+      "title": "LLM Inference Latency SLI (p95 < 4000ms Target)",
+      "description": "95th percentile latency for large language model generation via Ollama / LiteLLM.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 12, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "((histogram_quantile(0.95, sum(rate(rag_model_latency_ms_bucket[15m])) by (le))) >= 0) or vector(0)",
+          "legendFormat": "p95 LLM Latency"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 10000,
+          "unit": "ms",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 4000 }, { "color": "red", "value": 6000 }] }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "title": "Average Agent Step Execution Latency (Seconds)",
+      "description": "Average step execution duration across all autonomous workflow stages.",
+      "type": "gauge",
+      "gridPos": { "h": 7, "w": 6, "x": 18, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(agent_execution_duration_seconds_sum) / clamp_min(sum(agent_execution_duration_seconds_count), 1)",
+          "legendFormat": "Avg Step Duration"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 120,
+          "unit": "s",
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "yellow", "value": 45 }, { "color": "red", "value": 60 }] }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "id": 103,
+      "title": "Row 4: Error Budget Consumption & Core Traffic Rate",
+      "type": "row"
+    },
+    {
+      "id": 13,
+      "title": "Error Budget Burn Rate (Timeseries)",
+      "description": "Burn rate of the 99.9% error budget. Values > 1.0 indicate error budget consumption.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 25 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "((sum(rate(http_requests_total{status=~\"5..\"}[1m])) or vector(0)) / clamp_min(sum(rate(http_requests_total[1m])), 0.0001)) / 0.001",
+          "legendFormat": "Burn Rate (>1 = Budget Draining)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": { "drawStyle": "line", "lineInterpolation": "smooth" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        }
+      }
+    },
+    {
+      "id": 14,
+      "title": "Backend API Traffic Rate (RPS by Handler)",
+      "description": "Real-time requests per second processed across core API endpoints.",
+      "type": "timeseries",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 25 },
+      "datasource": { "type": "prometheus", "uid": "Prometheus" },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[1m])) by (handler)",
+          "legendFormat": "{{handler}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "reqps", "custom": { "drawStyle": "line", "lineInterpolation": "smooth", "fillOpacity": 15 } }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 32 },
+      "id": 104,
+      "title": "Row 5: SLO Degradation & Correlated Error Telemetry Logs (Loki)",
+      "type": "row"
+    },
+    {
+      "id": 15,
+      "title": "Critical Error & Degradation Event Stream (Loki Ingestion)",
+      "description": "Correlated error log stream filtered for 5xx exceptions, SLA breaches, and pipeline timeouts.",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 33 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service_name=~\".+\"} |~ \"(?i)(error|failed|exception|status=5|500|breach|delay)\"",
+          "maxLines": 500
+        }
+      ],
+      "options": {
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "tags": ["loanprocessai", "sli", "slo", "compliance", "error-budget"],
+  "time": { "from": "now-15m", "to": "now" },
+  "timepicker": { "refresh_intervals": ["5s", "10s", "30s", "1m"] },
+  "timezone": "browser",
+  "title": "06 - Executive SLOs & Compliance Gauges",
+  "uid": "loanprocessai-sli-slo",
+  "version": 4
+}
